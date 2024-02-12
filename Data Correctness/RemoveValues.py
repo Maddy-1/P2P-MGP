@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 
 
@@ -12,8 +11,5 @@ def remove_rows(removal_index_ser: pd.Series, data: pd.DataFrame):
     input = pd.DataFrame({'name': ['a', 'b', 'c', 'd'], 'age': [1, 2, np.nan, 7]})
     output = pd.DataFrame({'name': ['a', 'b', 'd'], 'age': [1, 2,  7]})
     """
-    return data.loc[~removal_index_ser, :].reset_index(drop=True)
-
-
-
-
+    new_df = data.loc[~removal_index_ser, :].reset_index(drop=True)
+    return new_df
