@@ -9,5 +9,8 @@ def robust_zscore(ser: pd.Series):
      A common use of this is if abs(z) > 10, then that point is an outlier."""
     scaled_mad = 1.4826 * (ser - ser.median()).abs().median()
     median_centered_data = ser - ser.median()
+    zero_check = median_centered_data == 0
+
     z = median_centered_data / scaled_mad
+    z = z.mask(zero_check==True, (ser - ser.median())/ser.std())
     return z
