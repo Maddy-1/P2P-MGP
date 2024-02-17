@@ -1,4 +1,5 @@
 from typing import List
+
 import pandas as pd
 
 
@@ -22,3 +23,7 @@ class ModelParameters:
 
     def update_data(self, new_data: pd.DataFrame):
         self.data = new_data
+        return ModelParameters(self.data, self.parameters, self.response_variable)
+
+    def get_all_variables(self):
+        return self.parameters + [self.response_variable]
