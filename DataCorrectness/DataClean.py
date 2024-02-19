@@ -5,21 +5,27 @@ from DataCorrectness.DataCleaning.RemoveValues import remove_rows
 
 
 class DataClean:
-    def __init__(self, model: ModelParameters, check_empty_values: bool = True):
+    def __init__(self, model: ModelParameters, check_empty_values: bool = True, change_irregular_dtypes: bool = True):
         """
 
         :param model: ModelParameters class, containing the data and parameters of interest
         :param check_empty_values: bool. If True, then it will check and remove empty columns and/or values.
+        :param change_irregular_dtypes: bool. If True, then it'll change percentages to decimal floats, grades and subgrades
+        to ordinal data, dates to datetime class and change the term (which is given as a string) to int.
         """
         self.model = model
         self.empty_check = check_empty_values
+        self.change_irregular_dtypes = change_irregular_dtypes
 
     def __str__(self):
         return f"{self.model}\n Check Empty Values: {self.empty_check}"
 
     def complete_data_clean(self):
         self.relevant_data()
-        self.remove_empty_data()
+        if self.empty_check:
+            self.remove_empty_data()
+        if self.change_irregular_dtypes:
+            self.change_irregular_dtypes
 
     def relevant_data(self):
         relevant_data = get_specific_columns(self.model.data, self.model.get_all_variables())
@@ -44,5 +50,5 @@ class DataClean:
     def check_outlier(self):
         return
 
-    def convert_dtype(self):
+    def convert_irregular_dtype(self):
         return

@@ -7,6 +7,8 @@ def robust_zscore(ser: pd.Series):
     The assumption of normality is helpful, but even for non-normal data, this is helpful to give an indication of how
      extreme a value is, in relation to the other data.
      A common use of this is if abs(z) > 10, then that point is an outlier."""
+    if ser.std() == 0:
+        return pd.Series(np.zeros(ser.shape))
     scaled_mad = 1.4826 * (ser - ser.median()).abs().median()
     median_centered_data = ser - ser.median()
     zero_check = median_centered_data == 0

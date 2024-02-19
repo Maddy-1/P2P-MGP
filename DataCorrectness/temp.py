@@ -16,7 +16,7 @@ def missing_data():
     )
     return data
 
-mp = ModelParameters(missing_data(), ['Factor 2', 'Factor 4'], 'Response')
+mp = ModelParameters(missing_data(), ['Factor 1', 'Factor 2', 'Factor 4'], 'Response')
 dc = DataClean(mp)
 dc.relevant_data()
 dc.remove_empty_data()
@@ -28,3 +28,5 @@ expected_output = pd.DataFrame(
 )
 print(dc.model.data)
 #pd.testing.assert_frame_equal(dc.model.data, expected_output)
+ser = pd.Series([1,2,3,4])
+print(pd.Series(np.zeros(ser.shape)))

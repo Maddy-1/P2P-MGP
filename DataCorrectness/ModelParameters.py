@@ -27,3 +27,8 @@ class ModelParameters:
 
     def get_all_variables(self):
         return self.parameters + [self.response_variable]
+
+data = pd.DataFrame({'x': [1,2,3,4],
+                     'y': [5,6,7,8]})
+Model = ModelParameters(data, ['x'], 'y')
+
