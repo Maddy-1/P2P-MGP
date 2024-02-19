@@ -6,10 +6,12 @@ from DataCorrectness.ModifyData.ChangePercentageToDecimal import percentage_to_d
 from DataCorrectness.ModifyData.ModifyTermToInt import modify_term_to_int
 from DataCorrectness.ModifyData.GradeConverter import grade_converter, subgrade_converter
 from DataCorrectness.ModifyData.ChangeDateToYear import change_dtype_to_datetime
+from DataCorrectness.DataCleaning.RobustZScore import robust_zscore
 
 
 class DataClean:
-    def __init__(self, model: ModelParameters, check_empty_values: bool = True, change_irregular_dtypes: bool = True):
+    def __init__(self, model: ModelParameters, check_empty_values: bool = True, change_irregular_dtypes: bool = True,
+                 outlier_check: bool = True, max_zscore_tol: float = 10):
         """
 
         :param model: ModelParameters class, containing the data and parameters of interest
@@ -20,9 +22,11 @@ class DataClean:
         self.model = model
         self.empty_check = check_empty_values
         self.change_irregular_dtypes = change_irregular_dtypes
+        self.outlier_check = outlier_check
+        self.max_zscore_tolerance = max_zscore_tol
 
     def __str__(self):
-        return f"{self.model}\n Check Empty Values: {self.empty_check}"
+        return f"{self.model}\n Check Empty Values: {self.empty_check}\n Check Irregular Dtypes: {self.change_irregular_dtypes}"
 
     def complete_data_clean(self):
         self.relevant_data()
@@ -30,6 +34,8 @@ class DataClean:
             self.remove_empty_data()
         if self.change_irregular_dtypes:
             self.convert_irregular_dtype()
+        if self.outlier_check:
+            self.check_outlier(max_zscore_tol=self.max_zscore_tolerance)
 
     def relevant_data(self):
         relevant_data = get_specific_columns(self.model.data, self.model.get_all_variables())
@@ -51,8 +57,14 @@ class DataClean:
     def check_type(self):
         return
 
-    def check_outlier(self):
-        return
+    def check_outlier(self, max_zscore_tol: float = 10, relevant_data_checked=True):
+        if relevant_data_checked is False:
+            self.relevant_data()
+
+        for factor in self.model.parameters:
+            zscore_ser = robust_zscore(self.model.data[factor]).abs()
+            removal_bool_ser = zscore_ser > max_zscore_tol
+            self.model.data = remove_rows(removal_bool_ser, self.model.data)
 
     def convert_irregular_dtype(self):
 

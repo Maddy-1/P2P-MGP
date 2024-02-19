@@ -10,3 +10,8 @@ def change_issue_date_to_year(df: pd.DataFrame) -> pd.DataFrame:
 def change_dtype_to_datetime(ser: pd.Series) -> pd.Series:
     newser = pd.to_datetime(ser).dt.strftime('%m-%Y')
     return newser
+
+x = pd.Series(
+    ['SEP-2014', 'NOV-2002']
+)
+

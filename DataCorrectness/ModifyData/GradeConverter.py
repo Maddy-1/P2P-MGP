@@ -19,5 +19,6 @@ def grade_converter(ser: pd.Series) -> pd.Series:
 
 
 def subgrade_converter(ser: pd.Series) -> pd.Series:
+    """output is integers"""
     dct = dict(zip(_subgrade(), np.arange(1, len(_subgrade()) + 1)))
     return ser.map(dct)
