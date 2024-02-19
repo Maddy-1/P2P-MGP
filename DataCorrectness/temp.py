@@ -16,17 +16,19 @@ def missing_data():
     )
     return data
 
-mp = ModelParameters(missing_data(), ['Factor 1', 'Factor 2', 'Factor 4'], 'Response')
-dc = DataClean(mp)
-dc.relevant_data()
-dc.remove_empty_data()
-expected_output = pd.DataFrame(
-    {
-        'Factor 2': np.arange(0, 11),
-        'Response': [1] * 11
-    }
-)
-print(dc.model.data)
+# mp = ModelParameters(missing_data(), ['Factor 1', 'Factor 2', 'Factor 4'], 'Response')
+# dc = DataClean(mp)
+# dc.relevant_data()
+# dc.remove_empty_data()
+# expected_output = pd.DataFrame(
+#     {
+#         'Factor 2': np.arange(0, 11),
+#         'Response': [1] * 11
+#     }
+# )
+
 #pd.testing.assert_frame_equal(dc.model.data, expected_output)
-ser = pd.Series([1,2,3,4])
-print(pd.Series(np.zeros(ser.shape)))
+keys = [1, 2, 3, 4]
+vals = [5, 6, 7, 8]
+dct = dict(zip(keys, vals))
+print(1 in dct.keys())
