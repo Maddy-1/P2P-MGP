@@ -7,6 +7,7 @@ from DataCorrectness.ModifyData.ChangePercentageToDecimal import percentage_to_d
 from DataCorrectness.ModifyData.EditDataFrame import get_specific_columns, drop_specific_columns
 from DataCorrectness.ModifyData.GradeConverter import grade_converter, subgrade_converter
 from DataCorrectness.ModifyData.ModifyTermToInt import modify_term_to_int
+import numpy as np
 
 
 class DataClean:
@@ -74,9 +75,12 @@ class DataClean:
             self.relevant_data()
 
         for factor in self.model.parameters:
-            zscore_ser = robust_zscore(self.model.data[factor]).abs()
-            removal_bool_ser = zscore_ser > max_zscore_tol
-            self.model.data = remove_rows(removal_bool_ser, self.model.data)
+            cond1 = self.model.data[factor].dtype == np.dtype(float)
+            cond2 = self.model.data[factor].dtype == np.dtype(int)
+            if cond1.all() or cond2.all():
+                zscore_ser = robust_zscore(self.model.data[factor]).abs()
+                removal_bool_ser = zscore_ser > max_zscore_tol
+                self.model.data = remove_rows(removal_bool_ser, self.model.data)
 
     def convert_irregular_dtype(self):
 
