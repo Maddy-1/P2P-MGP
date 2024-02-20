@@ -69,10 +69,7 @@ class DataClean:
                 if remove_incorrect_type:
                     self.model.data = remove_rows(~dtype_check, self.model.data)
                 if dtype_check.all() is False:
-                    print(f"{100* dtype_check.sum() / dtype_check.count()}% of Factor {factor} is the wrong type")
-
-
-
+                    print(f"{100 * dtype_check.sum() / dtype_check.count()}% of Factor {factor} is the wrong type")
 
     def check_outlier(self, max_zscore_tol: float = 10, relevant_data_checked=True):
         if relevant_data_checked is False:
@@ -97,9 +94,4 @@ class DataClean:
                 self.model.data[factor] = dtype_dct[factor](self.model.data[factor])
 
 
-
-x = pd.DataFrame(
-    {'int_rate': [0.21, 0.11, 0.01],
-     }
-)
-
+x = pd.DataFrame({'int_rate': [0.21, 0.11, 0.01], })
