@@ -1,3 +1,7 @@
+from typing import List
+
+import numpy as np
+
 from DataCorrectness.DataCleaning.EmptyValueCheck import empty_check
 from DataCorrectness.DataCleaning.RemoveValues import remove_rows
 from DataCorrectness.DataCleaning.RobustZScore import robust_zscore
@@ -7,12 +11,11 @@ from DataCorrectness.ModifyData.ChangePercentageToDecimal import percentage_to_d
 from DataCorrectness.ModifyData.EditDataFrame import get_specific_columns, drop_specific_columns
 from DataCorrectness.ModifyData.GradeConverter import grade_converter, subgrade_converter
 from DataCorrectness.ModifyData.ModifyTermToInt import modify_term_to_int
-import numpy as np
-
 
 class DataClean:
-    def __init__(self, model: ModelParameters, check_empty_values: bool = True, change_irregular_dtypes: bool = True,
-                 outlier_check: bool = True, max_zscore_tol: float = 10, check_types: bool = True):
+    def __init__(self, model: ModelParameters, factors_to_check_outliers: List[str], check_empty_values: bool = True,
+                 change_irregular_dtypes: bool = True, outlier_check: bool = True, max_zscore_tol: float = 10,
+                 check_types: bool = True):
         """
 
         :param model: ModelParameters class, containing the data and parameters of interest
@@ -21,6 +24,7 @@ class DataClean:
         subgrades to ordinal data, dates to datetime class and change the term (which is given as a string) to int.
         """
         self.model = model
+        self.outlier_factors = factors_to_check_outliers
         self.empty_check = check_empty_values
         self.change_irregular_dtypes = change_irregular_dtypes
         self.outlier_check = outlier_check
@@ -74,10 +78,10 @@ class DataClean:
         if relevant_data_checked is False:
             self.relevant_data()
 
-        for factor in self.model.parameters:
-            cond1 = self.model.data[factor].dtype == np.dtype(float)
-            cond2 = self.model.data[factor].dtype == np.dtype(int)
-            if cond1.all() or cond2.all():
+        for factor in self.outlier_factors:
+            cond1 = (self.model.data[factor].dtype == np.dtype(float)).all()
+            cond2 = (self.model.data[factor].dtype == np.dtype(int)).all()
+            if cond1 or cond2:
                 zscore_ser = robust_zscore(self.model.data[factor]).abs()
                 removal_bool_ser = zscore_ser > max_zscore_tol
                 self.model.data = remove_rows(removal_bool_ser, self.model.data)
