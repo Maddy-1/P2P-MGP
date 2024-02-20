@@ -1,5 +1,5 @@
 import pandas as pd
-
+import numpy as np
 from DataCorrectness.ModelParameters import ModelParameters
 from DataCorrectness.ModifyData.EditDataFrame import get_specific_columns, drop_specific_columns
 from DataCorrectness.DataCleaning.EmptyValueCheck import empty_check
@@ -42,7 +42,9 @@ class DataClean:
         if self.outlier_check:
             self.check_outlier(max_zscore_tol=self.max_zscore_tolerance)
         if self.check_types:
-            self.check_type()
+            # self.check_type()
+            pass
+        return ModelParameters(self.model.data, self.model.parameters, self.model.response_variable)
 
     def relevant_data(self):
         relevant_data = get_specific_columns(self.model.data, self.model.get_all_variables())
@@ -61,15 +63,15 @@ class DataClean:
                 editted_df = remove_rows(empty_ser, self.model.data)
                 self.model = ModelParameters(editted_df, self.model.parameters, self.model.response_variable)
 
-    def check_type(self, remove_incorrect_type=False):
-        expected_dtype = ExpectedDTypes().expected_dtype_dict
-        for factor in self.model.parameters:
-            if factor in expected_dtype.keys():
-                dtype_check = data_type_check(self.model.data[factor], expected_dtype[factor])
-                if remove_incorrect_type:
-                    self.model.data = remove_rows(~dtype_check, self.model.data)
-                if dtype_check.all() is False:
-                    print(f"{100 * dtype_check.sum() / dtype_check.count()}% of Factor {factor} is the wrong type")
+    # def check_type(self, remove_incorrect_type=False):
+    #     expected_dtype = ExpectedDTypes().expected_dtype_dict
+    #     for factor in self.model.parameters:
+    #         if factor in expected_dtype.keys():
+    #             dtype_check = data_type_check(self.model.data[factor], expected_dtype[factor])
+    #             if remove_incorrect_type:
+    #                 self.model.data = remove_rows(~dtype_check, self.model.data)
+    #             if dtype_check.all() is False:
+    #                 print(f"{100 * dtype_check.sum() / dtype_check.count()}% of Factor {factor} is the wrong type")
 
     def check_outlier(self, max_zscore_tol: float = 10, relevant_data_checked=True):
         if relevant_data_checked is False:
@@ -93,5 +95,8 @@ class DataClean:
             if factor in factors:
                 self.model.data[factor] = dtype_dct[factor](self.model.data[factor])
 
-
-x = pd.DataFrame({'int_rate': [0.21, 0.11, 0.01], })
+data = pd.DataFrame({'Factor 1': [np.nan] * 10 + [20], 'Factor 2': np.arange(0, 11), 'Factor 3': [np.nan] * 11,
+                         'Factor 4': list(range(0, 10)) + [np.nan], 'Response': [1] * 11})
+mp = ModelParameters(data, ['Factor 1', 'Factor 2', 'Factor 3', 'Factor 4'], 'Response')
+dc = DataClean(mp)
+print(dc.complete_data_clean().data)
