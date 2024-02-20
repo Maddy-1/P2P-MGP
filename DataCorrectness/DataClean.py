@@ -1,16 +1,12 @@
-import pandas as pd
-import numpy as np
-from DataCorrectness.ModelParameters import ModelParameters
-from DataCorrectness.ModifyData.EditDataFrame import get_specific_columns, drop_specific_columns
 from DataCorrectness.DataCleaning.EmptyValueCheck import empty_check
 from DataCorrectness.DataCleaning.RemoveValues import remove_rows
-from DataCorrectness.ModifyData.ChangePercentageToDecimal import percentage_to_decimal
-from DataCorrectness.ModifyData.ModifyTermToInt import modify_term_to_int
-from DataCorrectness.ModifyData.GradeConverter import grade_converter, subgrade_converter
-from DataCorrectness.ModifyData.ChangeDateToYear import change_dtype_to_datetime
 from DataCorrectness.DataCleaning.RobustZScore import robust_zscore
-from DataCorrectness.ModifyData.ExpectedDTypes import ExpectedDTypes
-from DataCorrectness.DataCleaning.AssertDataType import data_type_check
+from DataCorrectness.ModelParameters import ModelParameters
+from DataCorrectness.ModifyData.ChangeDateToYear import change_dtype_to_datetime
+from DataCorrectness.ModifyData.ChangePercentageToDecimal import percentage_to_decimal
+from DataCorrectness.ModifyData.EditDataFrame import get_specific_columns, drop_specific_columns
+from DataCorrectness.ModifyData.GradeConverter import grade_converter, subgrade_converter
+from DataCorrectness.ModifyData.ModifyTermToInt import modify_term_to_int
 
 
 class DataClean:
@@ -94,9 +90,3 @@ class DataClean:
         for factor in self.model.parameters:
             if factor in factors:
                 self.model.data[factor] = dtype_dct[factor](self.model.data[factor])
-
-data = pd.DataFrame({'Factor 1': [np.nan] * 10 + [20], 'Factor 2': np.arange(0, 11), 'Factor 3': [np.nan] * 11,
-                         'Factor 4': list(range(0, 10)) + [np.nan], 'Response': [1] * 11})
-mp = ModelParameters(data, ['Factor 1', 'Factor 2', 'Factor 3', 'Factor 4'], 'Response')
-dc = DataClean(mp)
-print(dc.complete_data_clean().data)
