@@ -11,8 +11,10 @@ class ExpectedDTypes:
         return str(self.expected_dtype_dict)
 
     def int_and_float_df(self):
+
         x = self.expected_dtype_dict
         fldf = x.loc[x['dtype'] == np.dtype('float64'), :]
         intdf = x.loc[x['dtype'] == np.dtype('int64'), :]
-        df = pd.concat([fldf, intdf])
-        return df.reset_index(drop=True)
+        df = pd.concat([fldf, intdf]).reset_index(drop=True)
+
+        return df
