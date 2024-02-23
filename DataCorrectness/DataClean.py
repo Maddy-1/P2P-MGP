@@ -1,6 +1,7 @@
 from typing import List
 
 import numpy as np
+import pandas as pd
 
 from DataCorrectness.DataCleaning.EmptyValueCheck import empty_check
 from DataCorrectness.DataCleaning.RemoveValues import remove_rows
@@ -12,10 +13,11 @@ from DataCorrectness.ModifyData.EditDataFrame import get_specific_columns, drop_
 from DataCorrectness.ModifyData.GradeConverter import grade_converter, subgrade_converter
 from DataCorrectness.ModifyData.ModifyTermToInt import modify_term_to_int
 
+
 class DataClean:
-    def __init__(self, model: ModelParameters, factors_to_check_outliers: List[str], check_empty_values: bool = True,
-                 change_irregular_dtypes: bool = True, outlier_check: bool = True, max_zscore_tol: float = 10,
-                 check_types: bool = True):
+    def __init__(self, model: ModelParameters, factors_to_check_outliers: List[str] = None,
+                 check_empty_values: bool = True, change_irregular_dtypes: bool = True, outlier_check: bool = True,
+                 max_zscore_tol: float = 10, check_types: bool = True):
         """
 
         :param model: ModelParameters class, containing the data and parameters of interest
@@ -30,6 +32,7 @@ class DataClean:
         self.outlier_check = outlier_check
         self.max_zscore_tolerance = max_zscore_tol
         self.check_types = check_types
+        self.outlier_df = pd.DataFrame({})
 
     def __str__(self):
         return f"{self.model}\n Check Empty Values: {self.empty_check}\n Check Irregular Dtypes: {self.change_irregular_dtypes}"
@@ -77,14 +80,22 @@ class DataClean:
     def check_outlier(self, max_zscore_tol: float = 10, relevant_data_checked=True):
         if relevant_data_checked is False:
             self.relevant_data()
+        if self.outlier_factors is None:
+            return None
 
         for factor in self.outlier_factors:
-            cond1 = (self.model.data[factor].dtype == np.dtype(float)).all()
-            cond2 = (self.model.data[factor].dtype == np.dtype(int)).all()
+            cond1 = (self.model.data[factor].dtype == np.dtype(float))
+            cond2 = (self.model.data[factor].dtype == np.dtype(int))
+            if isinstance(cond1, pd.Series) or isinstance(cond2, pd.Series):
+                cond1 = (self.model.data[factor].dtype == np.dtype(float)).all()
+                cond2 = (self.model.data[factor].dtype == np.dtype(int)).all()
+
             if cond1 or cond2:
                 zscore_ser = robust_zscore(self.model.data[factor]).abs()
                 removal_bool_ser = zscore_ser > max_zscore_tol
+                self.outlier_df = pd.concat([self.outlier_df, self.model.data.loc[removal_bool_ser, :]])
                 self.model.data = remove_rows(removal_bool_ser, self.model.data)
+
 
     def convert_irregular_dtype(self):
 
