@@ -96,7 +96,6 @@ class DataClean:
                 self.outlier_df = pd.concat([self.outlier_df, self.model.data.loc[removal_bool_ser, :]])
                 self.model.data = remove_rows(removal_bool_ser, self.model.data)
 
-
     def convert_irregular_dtype(self):
 
         factors = ['int_rate', 'revol_util', 'term', 'grade', 'sub_grade', 'issue_d', 'earliest_cr_line',
