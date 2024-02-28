@@ -9,7 +9,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.datasets import make_classification
 
 from mlxtend.feature_selection import SequentialFeatureSelector
-
+from DataCorrectness.DataClean import DataClean as DC
 
 # from GradeConverter import subgrade_converter
 # from ModifyLoanStatus import modify_loan_status
@@ -21,22 +21,9 @@ data14 = pd.read_csv("LoanStats2007_11.csv", low_memory=False)
 
 def stepwiseLog(df):
 
-  # remove column 1
-  df = df.iloc[: , 1:]
+  # clean data
+  df = DC.complete_data_clean(df.iloc[: , 1:])
 
-  df = DataClean.complete_data_clean(df)
-  """
-  # convert subgrade and loan status
-  df['sub_grade'] = subgrade_converter(df['sub_grade'])
-  df = modify_loan_status(df)
-
-  # remove empty and non numeric cols
-  for col_name in df.columns:
-    bool = empty_check(df[col_name])
-    df = remove_rows(bool, df)
-
-  df = df.select_dtypes(include=[int,float])
-"""
   y = df["loan_status"]
   X = df.drop("loan_status", axis = 1)
 
@@ -49,8 +36,7 @@ def stepwiseLog(df):
   selected_features = sfs.fit(X, y)
 
   # Create a dataframe with only the selected features
-  # selected_columns = [0, 1, 2, 3]
-  df_selected = DataClean.relevant_data(df)
+  df_selected = DC.relevant_data(df)
   df_selected = df.drop("loan_status", axis = 1)
 
   # Split the data into train and test sets
@@ -69,5 +55,3 @@ def stepwiseLog(df):
   
   # Evaluate the model performance
   return y_pred
-
-stepwiseLog(data14)
