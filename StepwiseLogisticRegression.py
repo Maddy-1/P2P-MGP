@@ -9,20 +9,28 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.datasets import make_classification
 
 from mlxtend.feature_selection import SequentialFeatureSelector
-from DataCorrectness.DataClean import DataClean as DC
-
+from DataCorrectness.DataClean import DataClean
+from DataCorrectness.ModelParameters import ModelParameters
 # from GradeConverter import subgrade_converter
 # from ModifyLoanStatus import modify_loan_status
 # from EmptyValueCheck import empty_check
 # from RemoveValues import remove_rows
-
+from typing import List
 
 data14 = pd.read_csv("LoanStats2007_11.csv", low_memory=False)
 
-def stepwiseLog(df):
+def stepwiseLog(df: pd.DataFrame, outlier_detection_factors: List[str]):
 
-  # clean data
-  df = DC.complete_data_clean(df.iloc[: , 1:])
+  # get data
+  data = df.iloc[:, 1:]
+  factors = data.columns.tolist()
+  factors.remove('loan_status')
+  model = ModelParameters(data, factors, 'loan_status')
+  dc = DataClean(model, factors_to_check_outliers=outlier_detection_factors)
+  #clean data
+  cleaned_model = dc.complete_data_clean()
+  #cleaned_model is type = ModelParameters. we set df to be the cleaned data
+  df = cleaned_model.data
 
   y = df["loan_status"]
   X = df.drop("loan_status", axis = 1)
@@ -36,7 +44,8 @@ def stepwiseLog(df):
   selected_features = sfs.fit(X, y)
 
   # Create a dataframe with only the selected features
-  df_selected = DC.relevant_data(df)
+  new_model = ModelParameters(df, sfs.k_feature_names_, "loan_status")
+  df_selected = DataClean(new_model).relevant_data()
   df_selected = df.drop("loan_status", axis = 1)
 
   # Split the data into train and test sets
