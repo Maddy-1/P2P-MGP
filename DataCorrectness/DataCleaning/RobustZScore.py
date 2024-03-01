@@ -17,6 +17,6 @@ def robust_zscore(ser: pd.Series):
     zero_check = median_centered_data == 0
 
     z = median_centered_data / scaled_mad
-    z = z.mask(zero_check, (ser - ser.median()) / ser.std())
+    z = z.mask(zero_check, (ser - ser.mean()) / ser.std())
     return z.replace({np.inf: np.nan, -np.inf: np.nan})
 
