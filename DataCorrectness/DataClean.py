@@ -11,7 +11,10 @@ from DataCorrectness.ModifyData.ChangeDateToYear import change_dtype_to_datetime
 from DataCorrectness.ModifyData.ChangePercentageToDecimal import percentage_to_decimal
 from DataCorrectness.ModifyData.EditDataFrame import get_specific_columns, drop_specific_columns
 from DataCorrectness.ModifyData.GradeConverter import grade_converter, subgrade_converter
+from DataCorrectness.ModifyData.ModifyLoanStatus import modify_loan_status
 from DataCorrectness.ModifyData.ModifyTermToInt import modify_term_to_int
+from DataCorrectness.ModifyData.StringsToBinary import initial_list_status_to_binary, yesno_to_binary, \
+    application_type_to_binary, disbursement_method_to_binary
 
 
 class DataClean:
@@ -48,11 +51,26 @@ class DataClean:
         if self.check_types:
             # self.check_type()
             pass
+        self.model.data = modify_loan_status(self.model.data)
         return ModelParameters(self.model.data, self.model.parameters, self.model.response_variable)
 
     def relevant_data(self):
         relevant_data = get_specific_columns(self.model.data, self.model.get_all_variables())
         self.model = ModelParameters(relevant_data, self.model.parameters, self.model.response_variable)
+
+    def int_and_float_data(self):
+        """should be used postclean"""
+        newdf = self.model.data
+        for i in newdf.columns:
+            dtypecheck = True
+            dt = newdf[i].dtype
+            if dt != np.dtype(int) and dt != np.dtype(float):
+                dtypecheck = False
+
+            if dtypecheck is False:
+                newdf.pop(i)
+
+        return ModelParameters(newdf, self.model.parameters, self.model.response_variable)
 
     def remove_empty_data(self):
         for col_name in self.model.parameters:
@@ -99,9 +117,13 @@ class DataClean:
     def convert_irregular_dtype(self):
 
         factors = ['int_rate', 'revol_util', 'term', 'grade', 'sub_grade', 'issue_d', 'earliest_cr_line',
-                   'last_pymnt_d', 'next_pymnt_d', 'last_credit_pull_d']
+                   'last_pymnt_d', 'next_pymnt_d', 'last_credit_pull_d', 'initial_list_status', 'pymnt_plan',
+                   'hardship_flag', 'application_type', 'disbursement_method']
         funct_lst = [percentage_to_decimal, percentage_to_decimal, modify_term_to_int, grade_converter,
-                     subgrade_converter] + [change_dtype_to_datetime] * 5
+                     subgrade_converter] + [change_dtype_to_datetime] * 5 + [initial_list_status_to_binary,
+                                                                             yesno_to_binary, yesno_to_binary,
+                                                                             application_type_to_binary,
+                                                                             disbursement_method_to_binary]
 
         dtype_dct = dict(zip(factors, funct_lst))
 

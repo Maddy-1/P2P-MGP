@@ -1,4 +1,7 @@
+import numpy as np
 import pandas as pd
+
+
 def modify_term_to_int(ser: pd.Series) -> pd.Series:
     """
     Series must not have nan values.
@@ -6,4 +9,8 @@ def modify_term_to_int(ser: pd.Series) -> pd.Series:
     Input = pd.Series(['36 months', '60 months'])
     Output = pd.Series([36, 60])
     """
-    return ser.str.slice(stop=-7).astype(int)
+
+    if ser.dtype == np.int64:
+        return ser
+    return ser.str.extract('(\d+)').astype(int)
+
