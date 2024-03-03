@@ -42,6 +42,7 @@ class DataClean:
 
     def complete_data_clean(self):
         self.relevant_data()
+        self.model.data = modify_loan_status(self.model.data)
         if self.empty_check:
             self.remove_empty_data()
         if self.change_irregular_dtypes:
@@ -51,7 +52,7 @@ class DataClean:
         if self.check_types:
             # self.check_type()
             pass
-        self.model.data = modify_loan_status(self.model.data)
+
         return ModelParameters(self.model.data, self.model.parameters, self.model.response_variable)
 
     def relevant_data(self):
@@ -64,7 +65,8 @@ class DataClean:
         for i in newdf.columns:
             dtypecheck = True
             dt = newdf[i].dtype
-            if dt != np.dtype(int) and dt != np.dtype(float):
+
+            if dt != np.int64 and dt != np.float64:
                 dtypecheck = False
 
             if dtypecheck is False:

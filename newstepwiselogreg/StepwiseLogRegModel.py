@@ -15,3 +15,8 @@ def model(xtrain, ytrain):
     return None
 
 
+x = pd.read_csv('EvenCleanerLoanStats2016Q2.csv')
+y = x['loan_status']
+x.pop('loan_status')
+
+model(x, y)
