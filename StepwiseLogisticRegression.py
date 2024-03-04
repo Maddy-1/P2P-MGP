@@ -12,7 +12,7 @@ from mlxtend.feature_selection import SequentialFeatureSelector
 from DataCorrectness.DataClean import DataClean
 from DataCorrectness.ModelParameters import ModelParameters
 # from GradeConverter import subgrade_converter
-# from ModifyLoanStatus import modify_loan_status
+from DataCorrectness.ModifyData.ModifyLoanStatus import modify_loan_status
 # from EmptyValueCheck import empty_check
 # from RemoveValues import remove_rows
 from typing import List
@@ -22,6 +22,7 @@ data14 = pd.read_csv("LoanStats2007_11.csv", low_memory=False)
 def stepwiseLog(df: pd.DataFrame, outlier_detection_factors: List[str]):
 
   # get data
+  stdsclr = StandardScaler()
   data = df.iloc[:, 1:]
   factors = data.columns.tolist()
   factors.remove('loan_status')
@@ -32,8 +33,8 @@ def stepwiseLog(df: pd.DataFrame, outlier_detection_factors: List[str]):
   #cleaned_model is type = ModelParameters. we set df to be the cleaned data
   df = cleaned_model.data
 
-  y = df["loan_status"]
-  X = df.drop("loan_status", axis = 1)
+  y =modify_loan_status(df)["loan_status"]
+  X = stdsclr.fit_transform(df.drop("loan_status", axis = 1))
 
   # Perform stepwise regression
   sfs = SequentialFeatureSelector(linear_model.LogisticRegression(),
